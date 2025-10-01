@@ -1,7 +1,10 @@
 package main.java.utils;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.sql.*;
 import java.util.Properties;
+import java.util.UUID;
 
 public class DbManager {
     private static DbManager instance;
@@ -60,21 +63,25 @@ public class DbManager {
                 """);
                 dbStmt.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS accounts (
-                        id UUID PRIMARY KEY,
-                        type VARCHAR(50) NOT NULL,
-                        balance NUMERIC(19,4) NOT NULL DEFAULT 0,
-                        currency VARCHAR(50) NOT NULL,
-                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-                        owner_id UUID,
-                        CONSTRAINT fk_owner FOREIGN KEY (owner_id) REFERENCES clients(id) ON DELETE SET NULL
+                        id VARCHAR(50) PRIMARY KEY,
+                       type VARCHAR(50) NOT NULL,
+                       balance NUMERIC(19,2) NOT NULL DEFAULT 0,
+                       interest_rate NUMERIC(19,2) NOT NULL DEFAULT 0,
+                       currency VARCHAR(50) NOT NULL,
+                       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                       is_active VARCHAR(255) NOT NULL,
+                       owner_id UUID,
+                       CONSTRAINT fk_owner FOREIGN KEY (owner_id) REFERENCES clients(id) ON DELETE SET NULL
                     )
                 """);
                 dbStmt.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS fee_rules (
                         id UUID PRIMARY KEY,
                         mode VARCHAR(50) NOT NULL,
+                        operation_type VARCHAR(50) NOT NULL,
                         currency VARCHAR(10) NOT NULL,
-                        is_active BOOLEAN NOT NULL DEFAULT TRUE
+                        is_active BOOLEAN NOT NULL DEFAULT FALSE,
+                        fee NUMERIC(19,2) NOT NULL DEFAULT 0
                     )
                 """);
                 dbStmt.executeUpdate("""
@@ -85,20 +92,39 @@ public class DbManager {
                         taux NUMERIC(5,2) NOT NULL,
                         justificatif_revenu VARCHAR(255),
                         fee_rule_id UUID REFERENCES fee_rules(id) ON DELETE SET NULL,
+                        account_id VARCHAR(50) REFERENCES accounts(id) ON DELETE SET NULL,
                         status VARCHAR(50) NOT NULL
                     )
                 """);
                 dbStmt.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS transactions (
                         id UUID PRIMARY KEY,
-                        amount NUMERIC(19,4) NOT NULL,
-                        account_from_id UUID REFERENCES accounts(id) ON DELETE SET NULL,
-                        account_to_id UUID REFERENCES accounts(id) ON DELETE SET NULL,
+                        amount NUMERIC(19,2) NOT NULL,
+                        sender_id VARCHAR(50) REFERENCES accounts(id) ON DELETE SET NULL,
                         fee_rule_id UUID REFERENCES fee_rules(id) ON DELETE SET NULL,
                         status VARCHAR(50) NOT NULL,
                         type VARCHAR(50) NOT NULL
                     )
                 """);
+
+                UUID adminId = UUID.randomUUID();
+                String hashedPassword = BCrypt.hashpw("123123", BCrypt.gensalt());
+
+                String insertAdminSql = """
+                    INSERT INTO users (id, name, email, password, role)
+                    VALUES (?, ?, ?, ?, ?)
+                    ON CONFLICT (email) DO NOTHING
+                """;
+
+                try (var stmt = DbManager.getInstance().getConnection().prepareStatement(insertAdminSql)) {
+                    stmt.setObject(1, adminId);
+                    stmt.setString(2, "Admin");
+                    stmt.setString(3, "hadoui@gmail.com");
+                    stmt.setString(4, hashedPassword);
+                    stmt.setString(5, "ADMIN");
+                    stmt.executeUpdate();
+                }
+
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);

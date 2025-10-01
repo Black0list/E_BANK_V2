@@ -6,12 +6,14 @@ import main.java.entities.enums.Role;
 import main.java.repositories.UserRepository;
 import main.java.services.UserService;
 import main.java.utils.DbManager;
-import main.java.utils.Display;
-import main.java.utils.Validation;
+import main.java.views.AdminMenu;
+import main.java.views.BaseMenu;
+import main.java.views.ManagerMenu;
+import main.java.views.TellerMenu;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Optional;
 
 public class Main {
     public static Optional<User> USER = Optional.empty();
@@ -19,49 +21,23 @@ public class Main {
 
     public static void main(String[] args) throws SQLException {
         DbManager.getInstance().initDb();
-//      Controllers
         UserRepository userRepo = new UserRepository();
         UserService userService = new UserService(userRepo);
         AuthController authController = new AuthController(userService);
 
-        int choice = 100;
-        Scanner input  = new Scanner(System.in);
-        while(choice != 10) {
-            Display.displayMenuForRole(USER);
-            String line = input.nextLine();
-            try {
-                choice = Integer.parseInt(line);
-            } catch (NumberFormatException e) {
-                System.out.println("That wasn't a number.");
-                continue;
-            }
-
-            switch (choice) {
-                case 1 : {
-                    Display.clear();
-                    System.out.println("=============================================");
-                    System.out.println("                    Login                    ");
-                    System.out.println("=============================================");
-                    System.out.print("email : ");
-                    String email = input.nextLine();
-                    System.out.print("Password : ");
-                    String password = input.nextLine();
-                    if(authController.login(email,password).isPresent()){
-                        USER = authController.login(email,password);
-                        Display.showSuccessMessage("Logged as "+USER.get().getName());
-                    } else {
-                        System.out.println("Invalid Credentials");
-                    }
-                    break;
-                }
-
-                case 2 : {
-                    System.out.println("==========================================");
-                    System.out.println("                Good Bye :-)              ");
-                    System.out.println("==========================================");
-                    return;
+        BaseMenu menu = new BaseMenu(authController) {
+            @Override
+            protected void showRoleMenu() throws SQLException {
+                if (USER.isEmpty()) return;
+                Role role = USER.get().getRole();
+                switch (role) {
+                    case ADMIN -> new AdminMenu(authController).show();
+                    case TELLER -> new TellerMenu(authController).show();
+                    default -> System.out.println("Role not implemented yet");
                 }
             }
-        }
+        };
+
+        menu.show();
     }
 }

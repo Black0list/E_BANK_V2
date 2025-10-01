@@ -9,6 +9,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 public class UserService {
 
@@ -30,5 +31,9 @@ public class UserService {
         }
 
         return Optional.empty();
+    }
+
+    public Optional<User> findUserById(UUID id) throws SQLException {
+        return userRepo.findById(id);
     }
 }

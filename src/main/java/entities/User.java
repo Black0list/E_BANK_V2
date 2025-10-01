@@ -9,8 +9,8 @@ import java.util.UUID;
 public class User {
     private UUID id;
     private String name;
-    private final String email;
-    private final String password;
+    private String email;
+    private String password;
     private Role role;
     private List<Client> clients;
 
@@ -22,6 +22,10 @@ public class User {
         this.password = password;
         this.role = role;
         this.clients = new ArrayList<>();
+    }
+
+    public User(UUID id){
+        this.id = id;
     }
 
     public User(UUID id, String name, String email, String password, Role role){

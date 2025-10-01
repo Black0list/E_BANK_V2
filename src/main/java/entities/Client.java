@@ -23,6 +23,19 @@ public class Client {
         this.helper = helper;
     }
 
+    public Client(UUID id, String name, String email, String phone, String cin, User helper) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.cin = cin;
+        this.helper = helper;
+    }
+
+    public Client(UUID id){
+        this.id = id;
+    }
+
     public UUID getId() {
         return id;
     }

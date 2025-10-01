@@ -86,4 +86,35 @@ public class UserRepository implements UserRepositoryIntf{
         return Optional.empty();
     }
 
+    public Optional<User> findById(UUID id) throws SQLException {
+        String findQuery = "SELECT * FROM users WHERE id = ?";
+        try (PreparedStatement findStatement = connection.prepareStatement(findQuery)) {
+            findStatement.setObject(1, id);
+            ResultSet result = findStatement.executeQuery();
+
+            if (result.next()) {
+                UUID userId = (UUID) result.getObject("id");
+                String name = result.getString("name");
+                String email = result.getString("email");
+                String password = result.getString("password");
+                String role = result.getString("role").toUpperCase();
+
+                switch (role) {
+                    case "TELLER":
+                        return Optional.of(new User(userId, name, email, password, Role.TELLER));
+                    case "MANAGER":
+                        return Optional.of(new User(userId, name, email, password, Role.MANAGER));
+                    case "AUDITOR":
+                        return Optional.of(new User(userId, name, email, password, Role.AUDITOR));
+                    case "ADMIN":
+                        return Optional.of(new User(userId, name, email, password, Role.ADMIN));
+                    default:
+                        throw new IllegalArgumentException("Unknown role: " + role);
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+
 }
