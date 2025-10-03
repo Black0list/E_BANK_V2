@@ -9,8 +9,10 @@ import main.java.utils.Validation;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 public class AccountController {
 
@@ -66,5 +68,14 @@ public class AccountController {
         }
 
         accountService.withdrawMoney(account, amount);
+    }
+
+    public Optional<List<Account>> getClientAccounts(String clientId) throws SQLException {
+        if(Objects.isNull(clientId)){
+            System.out.println("Invalid Input");
+            return Optional.empty();
+        }
+
+        return accountService.getClientAccounts(clientId);
     }
 }

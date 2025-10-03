@@ -12,8 +12,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 public class AccountService {
     private AccountRepositoryIntf accountRepo;
@@ -50,5 +52,9 @@ public class AccountService {
             System.out.println("Client doesnt have enough money, has only : "+account.getBalance()+" "+account.getCurrency());
         }
         accountRepo.save(account);
+    }
+
+    public Optional<List<Account>> getClientAccounts(String clientId) throws SQLException {
+        return accountRepo.getClientAccounts(clientId);
     }
 }

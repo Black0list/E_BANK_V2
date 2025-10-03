@@ -2,6 +2,7 @@ package main.java.entities;
 
 import main.java.entities.enums.Currency;
 import main.java.entities.enums.Mode;
+import main.java.entities.enums.OperationType;
 import main.java.entities.enums.TransactionType;
 
 import java.math.BigDecimal;
@@ -12,15 +13,15 @@ import java.util.UUID;
 public class FeeRule {
     private UUID id;
     private Mode mode;
-    private TransactionType operationType;
+    private OperationType operationType;
     private Currency currency;
     private BigDecimal fee;
     private boolean is_active;
     private List<Credit> credits;
     private List<Transaction> transactions;
 
-    public FeeRule(UUID id, Mode mode, TransactionType operationType, Currency currency, BigDecimal fee, boolean is_active) {
-        this.id = UUID.randomUUID();
+    public FeeRule(UUID id, Mode mode, OperationType operationType, Currency currency, BigDecimal fee, boolean is_active) {
+        this.id = id;
         this.mode = mode;
         this.operationType = operationType;
         this.currency = currency;
@@ -33,7 +34,7 @@ public class FeeRule {
     public FeeRule() {
         this.id = UUID.randomUUID();
         this.mode = Mode.FIX;
-        this.operationType = TransactionType.DEPOSIT;
+        this.operationType = OperationType.TRANSFER_EXTERNAL;
         this.currency = Currency.MAD;
         this.fee = new BigDecimal(0);
         this.is_active = false;
@@ -53,11 +54,11 @@ public class FeeRule {
         this.mode = mode;
     }
 
-    public TransactionType getOperationType() {
+    public OperationType getOperationType() {
         return operationType;
     }
 
-    public void setOperationType(TransactionType operationType) {
+    public void setOperationType(OperationType operationType) {
         this.operationType = operationType;
     }
 
@@ -107,5 +108,19 @@ public class FeeRule {
 
     public void setTransactions(List<Transaction> transactions) {
         this.transactions = transactions;
+    }
+
+    @Override
+    public String toString() {
+        return "FeeRule{" +
+                "id=" + id +
+                ", mode=" + mode +
+                ", operationType=" + operationType +
+                ", currency=" + currency +
+                ", fee=" + fee +
+                ", is_active=" + is_active +
+                ", credits=" + credits +
+                ", transactions=" + transactions +
+                '}';
     }
 }

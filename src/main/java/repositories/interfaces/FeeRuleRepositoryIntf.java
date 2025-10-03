@@ -1,6 +1,7 @@
 package main.java.repositories.interfaces;
 
 import main.java.entities.FeeRule;
+import main.java.entities.enums.OperationType;
 import main.java.entities.enums.TransactionType;
 
 import java.sql.SQLException;
@@ -15,5 +16,5 @@ public interface FeeRuleRepositoryIntf {
 
     void delete(UUID id) throws SQLException;
 
-    Optional<FeeRule> findActiveRuleByTransactionType(TransactionType type) throws SQLException;
+    Optional<FeeRule> findActiveRuleByOperationType(OperationType type) throws SQLException;
 }

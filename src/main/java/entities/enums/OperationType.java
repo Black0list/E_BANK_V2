@@ -1,11 +1,7 @@
 package main.java.entities.enums;
 
-public enum TransactionType {
+public enum OperationType {
     TRANSFER_EXTERNAL,
     WITHDRAW_FOREIGN_CURRENCY,
-    TRANSFER_IN,
-    TRANSFER_OUT,
-    DEPOSIT,
-    WITHDRAW,
     CREDIT
 }

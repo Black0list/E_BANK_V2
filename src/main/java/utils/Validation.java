@@ -3,6 +3,8 @@ package main.java.utils;
 import main.java.application.Main;
 
 import java.math.BigDecimal;
+import java.util.Optional;
+import java.util.UUID;
 
 public class Validation {
     public static boolean AuthCheck(){
@@ -23,4 +25,12 @@ public class Validation {
             return false;
         }
     }
+    public static Optional<UUID> safeParseUUID(String input) {
+        try {
+            return Optional.of(UUID.fromString(input));
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
+    }
+
 }

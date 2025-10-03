@@ -5,6 +5,7 @@ import main.java.entities.User;
 import main.java.entities.enums.Role;
 import main.java.repositories.interfaces.ClientRepositoryIntf;
 import main.java.utils.DbManager;
+import main.java.utils.Validation;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;

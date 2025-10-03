@@ -63,7 +63,7 @@ public class DbManager {
                 """);
                 dbStmt.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS accounts (
-                        id VARCHAR(50) PRIMARY KEY,
+                       id VARCHAR(50) PRIMARY KEY,
                        type VARCHAR(50) NOT NULL,
                        balance NUMERIC(19,2) NOT NULL DEFAULT 0,
                        interest_rate NUMERIC(19,2) NOT NULL DEFAULT 0,
@@ -72,6 +72,17 @@ public class DbManager {
                        is_active VARCHAR(255) NOT NULL,
                        owner_id UUID,
                        CONSTRAINT fk_owner FOREIGN KEY (owner_id) REFERENCES clients(id) ON DELETE SET NULL
+                    )
+                """);
+                dbStmt.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS bankfees (
+                       id VARCHAR(50) PRIMARY KEY,
+                       executor VARCHAR(50) NOT NULL,
+                       sourceType VARCHAR(50) NOT NULL,
+                       sourceId UUID NOT NULL,
+                       amount NUMERIC(19,2) NOT NULL DEFAULT 0,
+                       currency VARCHAR(50) NOT NULL,
+                       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                     )
                 """);
                 dbStmt.executeUpdate("""
@@ -87,13 +98,14 @@ public class DbManager {
                 dbStmt.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS credits (
                         id UUID PRIMARY KEY,
-                        amount NUMERIC(19,4) NOT NULL,
+                        total NUMERIC(19,2) NOT NULL,
+                        amount NUMERIC(19,2) NOT NULL,
+                        income NUMERIC(19,2) NOT NULL,
+                        reduce NUMERIC(19,2) NOT NULL,
                         duration FLOAT NOT NULL,
-                        taux NUMERIC(5,2) NOT NULL,
-                        justificatif_revenu VARCHAR(255),
                         fee_rule_id UUID REFERENCES fee_rules(id) ON DELETE SET NULL,
                         account_id VARCHAR(50) REFERENCES accounts(id) ON DELETE SET NULL,
-                        status VARCHAR(50) NOT NULL
+                        status VARCHAR(50) NOT NULL DEFAULT 'PENDING'
                     )
                 """);
                 dbStmt.executeUpdate("""

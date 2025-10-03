@@ -15,9 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class AccountRepository implements AccountRepositoryIntf {
     private final Connection connection;
@@ -92,4 +90,37 @@ public class AccountRepository implements AccountRepositoryIntf {
         }
         return Optional.empty();
     }
+
+    public Optional<List<Account>> getClientAccounts(String clientId) throws SQLException {
+        String sql = "SELECT * FROM accounts WHERE owner_id = ?::uuid";
+
+        try (PreparedStatement accStatement = connection.prepareStatement(sql)) {
+            accStatement.setObject(1, clientId);
+
+            ResultSet result = accStatement.executeQuery();
+
+            List<Account> accounts = new ArrayList<>();
+
+            while (result.next()) {
+                Account account = new Account(
+                        result.getString("id"),
+                        Accountype.valueOf(result.getString("type")),
+                        Currency.valueOf(result.getString("currency")),
+                        result.getBigDecimal("balance"),
+                        result.getBigDecimal("interest_rate"),
+                        Boolean.parseBoolean(result.getString("is_active")),
+                        new Client((UUID)result.getObject("owner_id")),
+                        result.getTimestamp("created_at").toInstant()
+                );
+                accounts.add(account);
+            }
+
+            if (accounts.isEmpty()) {
+                return Optional.empty();
+            } else {
+                return Optional.of(accounts);
+            }
+        }
+    }
+
 }

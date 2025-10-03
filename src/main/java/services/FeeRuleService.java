@@ -3,6 +3,7 @@ package main.java.services;
 import main.java.entities.Account;
 import main.java.entities.FeeRule;
 import main.java.entities.Transaction;
+import main.java.entities.enums.OperationType;
 import main.java.entities.enums.TransactionType;
 import main.java.repositories.FeeRuleRepository;
 import main.java.repositories.interfaces.FeeRuleRepositoryIntf;
@@ -17,7 +18,7 @@ public class FeeRuleService {
         this.feeRepo = feeRepo;
     }
 
-    public Optional<FeeRule> findByType(TransactionType type) throws SQLException {
-        return feeRepo.findActiveRuleByTransactionType(type);
+    public Optional<FeeRule> findByType(OperationType type) throws SQLException {
+        return feeRepo.findActiveRuleByOperationType(type);
     }
 }

@@ -3,6 +3,7 @@ package main.java.repositories;
 import main.java.entities.FeeRule;
 import main.java.entities.enums.Currency;
 import main.java.entities.enums.Mode;
+import main.java.entities.enums.OperationType;
 import main.java.entities.enums.TransactionType;
 import main.java.repositories.interfaces.FeeRuleRepositoryIntf;
 import main.java.utils.DbManager;
@@ -19,7 +20,6 @@ public class FeeRuleRepository implements FeeRuleRepositoryIntf {
         this.connection = DbManager.getInstance().getConnection();
     }
 
-    // ✅ Create or Update
     public void save(FeeRule rule) throws SQLException {
         String checkQuery = "SELECT id FROM fee_rules WHERE id = ?";
         try (PreparedStatement checkStmt = connection.prepareStatement(checkQuery)) {
@@ -59,7 +59,6 @@ public class FeeRuleRepository implements FeeRuleRepositoryIntf {
         }
     }
 
-    // ✅ Read by ID
     public Optional<FeeRule> findById(UUID id) throws SQLException {
         String findQuery = "SELECT * FROM fee_rules WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(findQuery)) {
@@ -73,7 +72,6 @@ public class FeeRuleRepository implements FeeRuleRepositoryIntf {
         return Optional.empty();
     }
 
-    // ✅ Delete
     public void delete(UUID id) throws SQLException {
         String sql = "DELETE FROM fee_rules WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -82,19 +80,18 @@ public class FeeRuleRepository implements FeeRuleRepositoryIntf {
         }
     }
 
-    // ✅ Mapping helper
     private FeeRule mapToFeeRule(ResultSet rs) throws SQLException {
         UUID id = (UUID) rs.getObject("id");
         Mode mode = Mode.valueOf(rs.getString("mode"));
-        TransactionType operationType = TransactionType.valueOf(rs.getString("operation_type"));
+        OperationType operationType = OperationType.valueOf(rs.getString("operation_type"));
         Currency currency = Currency.valueOf(rs.getString("currency"));
         BigDecimal fee = rs.getBigDecimal("fee");
         boolean isActive = rs.getBoolean("is_active");
-
+        System.out.println("id : "+id);
         return new FeeRule(id, mode, operationType, currency, fee, isActive);
     }
 
-    public Optional<FeeRule> findActiveRuleByTransactionType(TransactionType type) throws SQLException {
+    public Optional<FeeRule> findActiveRuleByOperationType(OperationType type) throws SQLException {
         String sql = "SELECT * FROM fee_rules WHERE operation_type = ? AND is_active = TRUE LIMIT 1";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {

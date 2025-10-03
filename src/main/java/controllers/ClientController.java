@@ -52,4 +52,13 @@ public class ClientController {
         return clientService.clientCreate(name,email,phone,cin,user);
     }
 
+    public Optional<Client> findClientId(UUID clientId) throws SQLException {
+        if(Objects.isNull(clientId)){
+            System.out.println("Invalid Input");
+            return Optional.empty();
+        }
+
+        return clientService.findClientById(clientId);
+    }
+
 }

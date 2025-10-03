@@ -22,7 +22,7 @@ public class TransactionController {
             return;
         }
 
-        if(Objects.isNull(amount) || !Validation.isValidAmount(amount, 2)){
+        if(!Validation.isValidAmount(amount, 2)){
             System.out.println("Amount is not valid");
             return;
         }

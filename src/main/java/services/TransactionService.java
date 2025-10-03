@@ -1,19 +1,21 @@
 package main.java.services;
 
+import main.java.application.Main;
 import main.java.entities.Account;
+import main.java.entities.BankFee;
 import main.java.entities.FeeRule;
 import main.java.entities.Transaction;
-import main.java.entities.enums.Accountype;
-import main.java.entities.enums.Mode;
-import main.java.entities.enums.TransactionStatus;
-import main.java.entities.enums.TransactionType;
+import main.java.entities.enums.*;
+import main.java.repositories.BankFeeRepository;
 import main.java.repositories.TransactionRepository;
 import main.java.repositories.interfaces.AccountRepositoryIntf;
+import main.java.repositories.interfaces.BankFeeRepositoryIntf;
 import main.java.repositories.interfaces.TransactionRepositoryIntf;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -22,11 +24,13 @@ public class TransactionService {
     private TransactionRepositoryIntf transactionRepo;
     private AccountService accountService;
     private FeeRuleService feeService;
+    private BankFeeRepositoryIntf bankFeeRepo;
 
-    public TransactionService(TransactionRepositoryIntf transactionRepo, AccountService accountService,FeeRuleService feeService){
+    public TransactionService(TransactionRepositoryIntf transactionRepo, AccountService accountService, FeeRuleService feeService, BankFeeRepositoryIntf bankFeeRepo){
         this.transactionRepo = transactionRepo;
         this.accountService = accountService;
         this.feeService = feeService;
+        this.bankFeeRepo = bankFeeRepo;
     }
 
     public void recordTransfer(String senderId, String receiverId, BigDecimal amount) throws SQLException {
@@ -91,10 +95,17 @@ public class TransactionService {
             case WITHDRAW, TRANSFER_OUT, TRANSFER_EXTERNAL -> accountService.withdrawMoney(account, amount);
         }
         transactionRepo.save(transaction);
+        Optional<FeeRule> feeRule = feeService.findByType(OperationType.valueOf(type.name()));
+        if (feeRule.isPresent()){
+            BigDecimal fee = feeRule.get().getMode().equals(Mode.FIX) ? feeRule.get().getFee() : amount.multiply(feeRule.get().getFee()).divide(new BigDecimal(100)).setScale(2, RoundingMode.DOWN);
+            String executor = Main.USER.get().getName() + " - " + Main.USER.get().getRole().name();
+            BankFee bankFee = new BankFee(executor, OperationType.valueOf(type.name()), transaction.getId(), fee, Currency.MAD);
+            bankFeeRepo.save(bankFee);
+        }
     }
 
     public BigDecimal applyFee(Account account, BigDecimal amount, TransactionType type) throws SQLException {
-        Optional<FeeRule> feeRule = feeService.findByType(type);
+        Optional<FeeRule> feeRule = feeService.findByType(OperationType.valueOf(type.name()));
         if(feeRule.isPresent()){
             if(feeRule.get().getMode().equals(Mode.FIX)){
                 return amount.add(feeRule.get().getFee());

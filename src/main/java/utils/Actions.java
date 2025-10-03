@@ -1,10 +1,7 @@
 package main.java.utils;
 
 import main.java.application.Main;
-import main.java.controllers.AccountController;
-import main.java.controllers.AuthController;
-import main.java.controllers.ClientController;
-import main.java.controllers.TransactionController;
+import main.java.controllers.*;
 import main.java.entities.Account;
 import main.java.entities.Client;
 import main.java.entities.enums.Accountype;
@@ -15,9 +12,8 @@ import main.java.repositories.interfaces.FeeRuleRepositoryIntf;
 import main.java.services.*;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -27,24 +23,26 @@ public class Actions {
 
 
     //      Repositories
-    private static UserRepository userRepo = new UserRepository();
-    private static ClientRepository clientRepo = new ClientRepository();
-    private static AccountRepository accRepo = new AccountRepository();
-    private static CreditRepository creditRepo = new CreditRepository();
-    private static TransactionRepository transactRepo = new TransactionRepository();
-    private static FeeRuleRepositoryIntf feeRepo = new FeeRuleRepository();
+    public static UserRepository userRepo = new UserRepository();
+    public static ClientRepository clientRepo = new ClientRepository();
+    public static AccountRepository accRepo = new AccountRepository();
+    public static CreditRepository creditRepo = new CreditRepository();
+    public static TransactionRepository transactRepo = new TransactionRepository();
+    public static FeeRuleRepositoryIntf feeRepo = new FeeRuleRepository();
+    public static BankFeeRepository bankFeeRepo = new BankFeeRepository();
     //      Services
-    private static UserService userService = new UserService(userRepo);
-    private static ClientService clientService = new ClientService(clientRepo, userService);
-    private static AccountService accService = new AccountService(accRepo, clientService);
-    private static CreditService creditService = new CreditService();
-    private static FeeRuleService feeRuleService = new FeeRuleService(feeRepo);
-    private static TransactionService transactService = new TransactionService(transactRepo, accService, feeRuleService);
+    public static UserService userService = new UserService(userRepo);
+    public static ClientService clientService = new ClientService(clientRepo, userService);
+    public static AccountService accService = new AccountService(accRepo, clientService);
+    public static FeeRuleService feeRuleService = new FeeRuleService(feeRepo);
+    public static CreditService creditService = new CreditService(creditRepo, feeRuleService);
+    public static TransactionService transactService = new TransactionService(transactRepo, accService, feeRuleService, bankFeeRepo);
     //      Controllers
-    private static AuthController authController = new AuthController(userService);
-    private static ClientController clientController = new ClientController(clientService);
-    private static AccountController accountController = new AccountController(accService);
-    private static TransactionController transactController = new TransactionController(transactService);
+    public static AuthController authController = new AuthController(userService);
+    public static ClientController clientController = new ClientController(clientService);
+    public static AccountController accountController = new AccountController(accService);
+    public static TransactionController transactController = new TransactionController(transactService);
+    public static CreditController creditController = new CreditController(creditService);
 
     public static void createUserAbility() throws SQLException {
         String line;
@@ -97,7 +95,7 @@ public class Actions {
         System.out.println("User System Created Successfully");
     }
 
-    public static Optional<Client> createClient() throws SQLException {
+    public static void createClient() throws SQLException {
         System.out.println("=============================================");
         System.out.println("               Creating Client               ");
         System.out.println("=============================================");
@@ -109,11 +107,10 @@ public class Actions {
         String phone = input.nextLine();
         System.out.print("cin : ");
         String cin = input.nextLine();
-        return clientController.createClient(name , email , phone, cin , Main.USER.get());
+        clientController.createClient(name, email, phone, cin, Main.USER.get());
     }
 
     public static void createBankAccount(Client client) throws SQLException {
-
         while (true) {
             System.out.println("Account Types : ");
             for (Accountype t : Accountype.values()) {
@@ -121,7 +118,14 @@ public class Actions {
             }
             System.out.print("Choose an account type : ");
             String type = input.nextLine().toUpperCase();
+            Optional<List<Account>> accounts = accountController.getClientAccounts(client.getId().toString());
 
+            if (accounts.isPresent() &&
+                    accounts.get().stream().map(el -> el.getType().toString().toUpperCase()).anyMatch(el -> el.equals(type))) {
+
+                System.out.println("Client already has a " + type + " account");
+                return;
+            }
 
 
             try {
@@ -169,7 +173,7 @@ public class Actions {
         }
     }
 
-    public static void TransferMoney() throws SQLException{
+    public static void TransferMoney() throws SQLException {
         System.out.print("Enter the accountId you want to transfer Money From : ");
         String senderId = input.nextLine();
         Optional<Account> sender = accountController.findAccountById(senderId);
@@ -182,9 +186,22 @@ public class Actions {
         transactController.Transfer(amount, sender.get().getId(), receiver);
     }
 
-    public static void createAccount() {
-        System.out.print("Enter The ClientId You want to create the account For : ");
-        String clientId = input.nextLine();
-
+    public static void RequestCredit() throws SQLException {
+        System.out.print("Enter The accountId You want to request Credit from : ");
+        String accountId = input.nextLine();
+        Optional<Account> account = accountController.findAccountById(accountId);
+        if(account.isEmpty()){
+            return;
+        }
+        System.out.print("Enter the Monthly Salary : ");
+        BigDecimal salary = input.nextBigDecimal();
+        input.nextLine();
+        System.out.print("Enter the Credit amount requested : ");
+        BigDecimal credit = input.nextBigDecimal();
+        input.nextLine();
+        System.out.print("Enter the number of months : ");
+        float duration = input.nextFloat();
+        input.nextLine();
+        creditController.requestCredit(account.get(), salary, credit, duration);
     }
 }

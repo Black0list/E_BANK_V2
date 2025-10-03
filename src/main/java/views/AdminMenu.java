@@ -3,9 +3,11 @@ package main.java.views;
 import main.java.controllers.AuthController;
 import main.java.entities.Client;
 import main.java.utils.Actions;
+import main.java.utils.Validation;
 
 import java.sql.SQLException;
 import java.util.Optional;
+import java.util.UUID;
 
 public class AdminMenu extends BaseMenu {
 
@@ -26,14 +28,24 @@ public class AdminMenu extends BaseMenu {
         switch (choice) {
             case "1" -> Actions.createUserAbility();
             case "2" -> {
-                Optional<Client> client =  Actions.createClient();
-                if(client.isPresent()){
-                    Actions.createBankAccount(client.get());
-                } else {
-                    System.out.println("Client Not Found");
-                }
+                Actions.createClient();
+//                if(client.isPresent()){
+//                    Actions.createBankAccount(client.get());
+//                } else {
+//                    System.out.println("Client Not Found");
+//                }
             }
-            case "3" -> Actions.createAccount();
+            case "3" -> {
+                System.out.print("Enter The ClientId You want to create the account For : ");
+                String clientId = input.nextLine();
+                Optional<UUID> inputReturned = Validation.safeParseUUID(clientId);
+                if(inputReturned.isEmpty()){
+                    System.out.println("Invalid ClientId");
+                    return;
+                }
+                Optional<Client> client = Actions.clientController.findClientId(inputReturned.get());
+                Actions.createBankAccount(client.get());
+            }
             case "4" -> Actions.depositAbility();
             case "5" -> Actions.withdrawAbility();
             case "6" -> Actions.TransferMoney();
