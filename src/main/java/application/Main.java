@@ -9,10 +9,7 @@ import main.java.services.CreditService;
 import main.java.services.UserService;
 import main.java.utils.DbManager;
 import main.java.utils.Schedule;
-import main.java.views.AdminMenu;
-import main.java.views.BaseMenu;
-import main.java.views.ManagerMenu;
-import main.java.views.TellerMenu;
+import main.java.views.*;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -37,6 +34,7 @@ public class Main {
                     case ADMIN -> new AdminMenu(authController).show();
                     case TELLER -> new TellerMenu(authController).show();
                     case MANAGER -> new ManagerMenu(authController).show();
+                    case AUDITOR -> new AuditorMenu(authController).show();
                     default -> System.out.println("Role not implemented yet");
                 }
             }

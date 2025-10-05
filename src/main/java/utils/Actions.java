@@ -12,6 +12,7 @@ import main.java.repositories.*;
 import main.java.repositories.interfaces.FeeRuleRepositoryIntf;
 import main.java.services.*;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.List;
@@ -237,6 +238,14 @@ public class Actions {
             creditController.denyCredit(creditId);
         } catch (Exception e){
             System.out.println("Enter a valid Credit Id");
+        }
+    }
+
+    public static void exportCsv(){
+        try {
+            bankFeeRepo.exportCreditsToCsv("C:\\Users\\cheat\\Documents\\Projects\\Banking_System\\E_BANKING_V2\\Exports\\data.csv");
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
         }
     }
 }
