@@ -33,6 +33,7 @@ public class Main {
                 switch (role) {
                     case ADMIN -> new AdminMenu(authController).show();
                     case TELLER -> new TellerMenu(authController).show();
+                    case MANAGER -> new ManagerMenu(authController).show();
                     default -> System.out.println("Role not implemented yet");
                 }
             }

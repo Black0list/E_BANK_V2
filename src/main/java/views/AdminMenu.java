@@ -27,14 +27,7 @@ public class AdminMenu extends BaseMenu {
         String choice = input.nextLine();
         switch (choice) {
             case "1" -> Actions.createUserAbility();
-            case "2" -> {
-                Actions.createClient();
-//                if(client.isPresent()){
-//                    Actions.createBankAccount(client.get());
-//                } else {
-//                    System.out.println("Client Not Found");
-//                }
-            }
+            case "2" -> Actions.createClient();
             case "3" -> {
                 System.out.print("Enter The ClientId You want to create the account For : ");
                 String clientId = input.nextLine();

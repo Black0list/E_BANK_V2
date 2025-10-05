@@ -11,6 +11,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -80,6 +82,53 @@ public class CreditRepository implements CreditRepositoryIntf {
         }
         return Optional.empty();
     }
+
+    public List<Credit> findAllByStatus(String status) throws SQLException {
+        String sql = "SELECT * FROM credits WHERE status = ?";
+        List<Credit> credits = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                credits.add(new Credit(
+                        (UUID) rs.getObject("id"),
+                        rs.getBigDecimal("amount"),
+                        rs.getBigDecimal("total"),
+                        rs.getBigDecimal("income"),
+                        rs.getFloat("duration"),
+                        rs.getObject("fee_rule_id") != null ? new FeeRule((UUID)rs.getObject("fee_rule_id")) : null,
+                        CreditStatus.valueOf(rs.getString("status")),
+                        rs.getString("account_id") != null ? new Account(rs.getString("account_id")) : null,
+                        rs.getBigDecimal("reduce")
+                ));
+            }
+        }
+
+        return credits;
+    }
+
+    public void validateCredit(UUID creditId) throws SQLException {
+        String sql = "UPDATE credits SET status = 'ACTIVE' WHERE id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setObject(1, creditId);
+
+            ps.executeUpdate();
+        }
+    }
+
+    public void denyCredit(UUID creditId) throws SQLException {
+        String sql = "UPDATE credits SET status = 'FAILED' WHERE id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setObject(1, creditId);
+
+            ps.executeUpdate();
+        }
+    }
+
 
 
 }

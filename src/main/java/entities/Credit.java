@@ -133,9 +133,9 @@ public class Credit{
                 ", income=" + income +
                 ", reduce=" + reduce +
                 ", duration=" + duration +
-                ", feeRule=" + feeRule +
+                ", feeRule=" + feeRule.getId() +
                 ", status=" + status +
-                ", account=" + account +
+                ", account=" + account.getId() +
                 '}';
     }
 }

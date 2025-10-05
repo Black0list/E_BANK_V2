@@ -43,7 +43,7 @@ public class TransactionService {
         }
 
         if (sender.isPresent() && !sender.get().getStatus()) {
-            System.out.println("The account is not active");
+            System.out.println("The sender's account is not active");
             return;
         }
 

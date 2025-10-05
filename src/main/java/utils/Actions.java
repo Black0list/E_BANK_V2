@@ -4,6 +4,7 @@ import main.java.application.Main;
 import main.java.controllers.*;
 import main.java.entities.Account;
 import main.java.entities.Client;
+import main.java.entities.Credit;
 import main.java.entities.enums.Accountype;
 import main.java.entities.enums.Currency;
 import main.java.entities.enums.Role;
@@ -16,6 +17,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.UUID;
 
 public class Actions {
 
@@ -203,5 +205,38 @@ public class Actions {
         float duration = input.nextFloat();
         input.nextLine();
         creditController.requestCredit(account.get(), salary, credit, duration);
+    }
+
+    public static void ListCreditRequests() throws SQLException {
+        Optional<List<Credit>> requests =  creditController.displayCreditReq();
+        if (requests.isEmpty()) {
+            System.out.println("There is no requests for The moment");
+            return;
+        }
+
+        System.out.println("Here is the list of requests : ");
+        requests.get().forEach(System.out::println);
+    }
+
+    public static void validateCredit(){
+        try {
+            System.out.print("Credit Id that you want to validate : ");
+            UUID creditId = UUID.fromString(input.nextLine());
+
+            creditController.validateCredit(creditId);
+        } catch (Exception e){
+            System.out.println("Enter a valid Credit Id");
+        }
+    }
+
+    public static void denyCredit(){
+        try {
+            System.out.print("Credit Id that you want to deny : ");
+            UUID creditId = UUID.fromString(input.nextLine());
+
+            creditController.denyCredit(creditId);
+        } catch (Exception e){
+            System.out.println("Enter a valid Credit Id");
+        }
     }
 }

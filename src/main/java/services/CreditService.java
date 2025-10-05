@@ -10,7 +10,9 @@ import main.java.repositories.interfaces.CreditRepositoryIntf;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class CreditService {
     private CreditRepositoryIntf creditRepo;
@@ -61,5 +63,17 @@ public class CreditService {
         }
 
         creditRepo.save(creditR);
+    }
+
+    public Optional<List<Credit>> getCreditRequests() throws SQLException {
+        return Optional.of(creditRepo.findAllByStatus(CreditStatus.PENDING.name()));
+    }
+
+    public void validateCredit(UUID creditId) throws SQLException {
+        creditRepo.validateCredit(creditId);
+    }
+
+    public void denyCredit(UUID creditId) throws SQLException {
+        creditRepo.denyCredit(creditId);
     }
 }
