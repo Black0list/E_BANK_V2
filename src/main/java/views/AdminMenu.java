@@ -23,6 +23,11 @@ public class AdminMenu extends BaseMenu {
         System.out.println("4. Deposit");
         System.out.println("5. Withdraw");
         System.out.println("6. Transfer Money");
+        System.out.println("7. Request Credit");
+        System.out.println("8. Validate Credit");
+        System.out.println("9. Deny Credit");
+        System.out.println("10. List Credit requests");
+        System.out.println("11. Export Data");
         System.out.print("Select an Option : ");
         String choice = input.nextLine();
         switch (choice) {
@@ -42,7 +47,12 @@ public class AdminMenu extends BaseMenu {
             case "4" -> Actions.depositAbility();
             case "5" -> Actions.withdrawAbility();
             case "6" -> Actions.TransferMoney();
-//            case "5" -> logout();
+            case "7" -> Actions.RequestCredit();
+            case "8" -> Actions.validateCredit();
+            case "9" -> Actions.denyCredit();
+            case "10" -> Actions.ListCreditRequests();
+            case "11" -> Actions.exportCsv();
+            case "12" -> logout();
             default -> System.out.println("Invalid option");
         }
     }

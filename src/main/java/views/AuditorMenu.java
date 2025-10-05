@@ -13,10 +13,12 @@ public class AuditorMenu extends BaseMenu{
     @Override
     protected void showRoleMenu() throws SQLException {
         System.out.println("1. ExportCsv");
+        System.out.println("2. logout");
         System.out.print("Select an Option : ");
         String choice = input.nextLine();
         switch (choice) {
             case "1" -> Actions.exportCsv();
+            case "2" -> logout();
         }
     }
 }

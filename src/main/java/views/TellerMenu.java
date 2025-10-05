@@ -22,6 +22,7 @@ public class TellerMenu extends BaseMenu {
         System.out.println("4. Withdraw");
         System.out.println("5. Transfer Money");
         System.out.println("6. Request Credit");
+        System.out.println("7. Logout");
         System.out.print("Select an Option : ");
         String choice = input.nextLine();
         switch (choice) {
@@ -41,6 +42,7 @@ public class TellerMenu extends BaseMenu {
             case "4" -> Actions.withdrawAbility();
             case "5" -> Actions.TransferMoney();
             case "6" -> Actions.RequestCredit();
+            case "7" -> logout();
             default -> System.out.println("Invalid option");
         }
     }
