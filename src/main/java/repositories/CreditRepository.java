@@ -7,6 +7,7 @@ import main.java.entities.enums.CreditStatus;
 import main.java.repositories.interfaces.CreditRepositoryIntf;
 import main.java.utils.DbManager;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -129,6 +130,14 @@ public class CreditRepository implements CreditRepositoryIntf {
         }
     }
 
-
-
+    public void updateCreditBalanceAndStatus(UUID id, BigDecimal total, float duration, CreditStatus status) throws SQLException {
+        String sql = "UPDATE credits SET total = ?, duration = ?, status = ? WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setBigDecimal(1, total);
+            ps.setFloat(2, duration);
+            ps.setString(3, status.name());
+            ps.setObject(4, id);
+            ps.executeUpdate();
+        }
+    }
 }

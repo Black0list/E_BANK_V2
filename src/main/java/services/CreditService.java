@@ -1,26 +1,32 @@
 package main.java.services;
 
+import main.java.application.Main;
 import main.java.entities.Account;
+import main.java.entities.BankFee;
 import main.java.entities.Credit;
 import main.java.entities.FeeRule;
 import main.java.entities.enums.*;
 import main.java.repositories.CreditRepository;
+import main.java.repositories.interfaces.BankFeeRepositoryIntf;
 import main.java.repositories.interfaces.CreditRepositoryIntf;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
 public class CreditService {
     private CreditRepositoryIntf creditRepo;
     private FeeRuleService feeService;
+    private BankFeeRepositoryIntf bankFeeRepo;
 
-    public CreditService(CreditRepositoryIntf creditRepo, FeeRuleService feeService) {
+    public CreditService(CreditRepositoryIntf creditRepo, FeeRuleService feeService, BankFeeRepositoryIntf bankFeeRepo) {
         this.creditRepo = creditRepo;
         this.feeService = feeService;
+        this.bankFeeRepo = bankFeeRepo;
     }
 
     public void requestCredit(Account account, BigDecimal salary, BigDecimal credit, float duration) throws SQLException {
@@ -75,5 +81,36 @@ public class CreditService {
 
     public void denyCredit(UUID creditId) throws SQLException {
         creditRepo.denyCredit(creditId);
+    }
+
+    public void updateAllCredits() throws SQLException {
+        List<Credit> credits = creditRepo.findAllByStatus("ACTIVE");
+
+        for (Credit c : credits) {
+            BigDecimal income = c.getIncome();
+            BigDecimal total = c.getTotal();
+            BigDecimal reduce = c.getReduce();
+            float duration = c.getDuration();
+
+            total =  total.add(income);
+            total = total.subtract(reduce);
+            --duration;
+
+
+            CreditStatus status = c.getStatus();
+            if (total.compareTo(BigDecimal.ZERO) <= 0) {
+                status = CreditStatus.LATE;
+            }
+
+            if(Objects.equals(duration, 0)){
+                status = CreditStatus.CLOSED;
+            }
+
+            creditRepo.updateCreditBalanceAndStatus(c.getId(), total, duration, status);
+            BankFee bankFee = new BankFee("System", OperationType.CREDIT, c.getId(), reduce, Currency.MAD);
+            bankFeeRepo.save(bankFee);
+
+            System.out.printf("Updated credit %s | Total: %s Reduce: %s | Status: %s%n", c.getId(), total, reduce, status);
+        }
     }
 }

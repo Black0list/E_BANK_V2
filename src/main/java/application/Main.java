@@ -3,9 +3,12 @@ package main.java.application;
 import main.java.controllers.AuthController;
 import main.java.entities.User;
 import main.java.entities.enums.Role;
+import main.java.repositories.CreditRepository;
 import main.java.repositories.UserRepository;
+import main.java.services.CreditService;
 import main.java.services.UserService;
 import main.java.utils.DbManager;
+import main.java.utils.Schedule;
 import main.java.views.AdminMenu;
 import main.java.views.BaseMenu;
 import main.java.views.ManagerMenu;
@@ -38,6 +41,9 @@ public class Main {
                 }
             }
         };
+
+        Schedule scheduler = new Schedule();
+        scheduler.start();
 
         menu.show();
     }

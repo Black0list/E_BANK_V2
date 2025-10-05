@@ -37,7 +37,7 @@ public class Actions {
     public static ClientService clientService = new ClientService(clientRepo, userService);
     public static AccountService accService = new AccountService(accRepo, clientService);
     public static FeeRuleService feeRuleService = new FeeRuleService(feeRepo);
-    public static CreditService creditService = new CreditService(creditRepo, feeRuleService);
+    public static CreditService creditService = new CreditService(creditRepo, feeRuleService, bankFeeRepo);
     public static TransactionService transactService = new TransactionService(transactRepo, accService, feeRuleService, bankFeeRepo);
     //      Controllers
     public static AuthController authController = new AuthController(userService);

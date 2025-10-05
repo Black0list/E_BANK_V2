@@ -39,25 +39,13 @@ public class Credit{
 
     public Credit(BigDecimal amount, float duration, BigDecimal income, Account account) {
         this.id = UUID.randomUUID();
-        this.total = BigDecimal.ZERO;
+        this.total = income;
         this.amount = amount;
         this.income = income;
         this.duration = duration;
         this.status = CreditStatus.PENDING;
         this.account = account;
         this.reduce = BigDecimal.ZERO;
-    }
-
-    public Credit(UUID id, BigDecimal amount, BigDecimal total, BigDecimal income, BigDecimal reduce, float duration, FeeRule feeRule, CreditStatus status, Account account) {
-        this.id = id;
-        this.amount = amount;
-        this.total = total;
-        this.income = income;
-        this.reduce = reduce;
-        this.duration = duration;
-        this.feeRule = feeRule;
-        this.status = status;
-        this.account = account;
     }
 
     public UUID getId() {
